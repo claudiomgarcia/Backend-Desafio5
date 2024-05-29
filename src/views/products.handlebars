@@ -1,8 +1,16 @@
 <div class="container pt-5">
+    <div class="buttons is-right">
+        <b>Bienvenido {{user.first_name}}</b>
+        <a href="/profile" class="button is-small is-link">Mi cuenta</a>
+        <form action="/api/sessions/logout" method="POST">
+            <button type="submit" class="button is-small is-dark">Cerrar Sesión</button>
+        </form>
+    </div>
     <h1 class="title pb-3"><a href="/products">Lista de Productos</a></h1>
 
     <div class="buttons is-right">
-        <a href="/carts/{{defaultCart._id}}" class="button is-link"><i class="fas fa-shopping-cart p-1"></i>Carrito
+        <a href="/carts/{{defaultCart._id}}" class="button is-small is-link"><i
+                class="fas fa-shopping-cart p-1"></i>Carrito
             ({{countProducts defaultCart.products}})</a>
     </div>
 
@@ -46,7 +54,7 @@
             <div class="columns is-multiline is-centered">
                 {{#each readProducts}}
                 <div class="column is-one-fifth">
-                    <div class="card" style="height: 100%">
+                    <div class="card" style="height: 100%; background-color: #0F1013">
                         <div class="level px-1 pt-2">
                             <div class="level-left">
                                 <p class="level-item has-text-left">
@@ -116,54 +124,4 @@
     </div>
 </div>
 
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        window.addToCart = async function (button) {
-            const cid = button.getAttribute('data-cid')
-            const pid = button.getAttribute('data-pid')
-
-            const url = `/api/carts/${cid}/product/${pid}`
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-
-                if (!response.ok) {
-                    throw new Error('Error en la solicitud')
-                }
-
-                const result = await response.json()
-
-                Swal.fire({
-                    position: "top-end",
-                    icon: "success",
-                    width: 300,
-                    title: "Producto añadido al carrito",
-                    showConfirmButton: false,
-                    timer: 1500,
-                    background: '#2f2f2f',
-                    color: '#ffffff'
-                }).then(() => {
-                    window.location.reload()
-                })
-
-            } catch (error) {
-                Swal.fire({
-                    position: "top-end",
-                    icon: "error",
-                    width: 300,
-                    title: "Error al añadir el producto al carrito",
-                    showConfirmButton: false,
-                    timer: 1500,
-                    background: '#2f2f2f',
-                    color: '#ffffff'
-                })
-            }
-        }
-    })
-</script>
+<script src="/js/products.js"></script>

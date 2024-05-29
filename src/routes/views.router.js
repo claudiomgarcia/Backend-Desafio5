@@ -2,20 +2,21 @@ import { Router } from "express"
 import ProductManager from '../dao/managers/mongomanagers/mongoProductManager.js'
 import CartManager from "../dao/managers/mongomanagers/mongoCartManager.js"
 import { generateLink } from '../utils.js'
+import { isAuthenticated, isNotAuthenticated } from "../middlewares/auth.js"
 
 const viewsRouter = Router()
 
 const productManager = new ProductManager()
 const cartManager = new CartManager()
 
-viewsRouter.get('/', (req, res) => {
-    res.render('home', { title: "Secciones" })
-})
+// viewsRouter.get('/', (req, res) => {
+//     res.render('home', { title: "Ingreso" })
+// })
 
-viewsRouter.get('/products', async (req, res) => {
+viewsRouter.get('/products', isAuthenticated, async (req, res) => {
     try {
         const { limit, sort, query, page } = req.query
-        
+
         //Asigna un carrito por defecto o lo crea
         const defaultCart = await cartManager.getOrCreateCart()
 
@@ -50,6 +51,7 @@ viewsRouter.get('/products', async (req, res) => {
             descLink: generateLink('products', 1, 'desc', limit, query),
             pages,
             defaultCart,
+            user: req.session.user,
             title: "Todos los productos"
         })
 
@@ -81,6 +83,27 @@ viewsRouter.get('/carts/:cid', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Hubo un error al obtener el carrito.', message: error.message })
     }
+})
+
+viewsRouter.get(['/', '/login'], isNotAuthenticated, (req, res) => {
+    res.render(
+        'login',
+        { title: "Ingresar" })
+})
+
+viewsRouter.get('/register', isNotAuthenticated, (req, res) => {
+    res.render(
+        'register',
+        { title: "Registrarse" })
+})
+
+viewsRouter.get('/profile', isAuthenticated, (req, res) => {
+    res.render(
+        'profile',
+        {
+            user: req.session.user,
+            title: "Mi Cuenta"
+        })
 })
 
 export default viewsRouter

@@ -2,6 +2,7 @@ import express from 'express'
 import productsRouter from './routes/products.router.js'
 import cartsRouter from './routes/carts.router.js'
 import viewsRouter from './routes/views.router.js'
+import sessionsRouter from './routes/api/sessions.router.js'
 import { create } from 'express-handlebars'
 import customHelpers from './views/helpers/customHelpers.js'
 import { Server } from 'socket.io'
@@ -10,6 +11,8 @@ import { __dirname } from './utils.js'
 import socketProducts from './listener/socketProducts.js'
 import socketChat from './listener/socketChat.js'
 import connectDB from './config/db.js'
+import session from 'express-session'
+import MongoStore from 'connect-mongo'
 
 dotenv.config()
 
@@ -33,8 +36,19 @@ app.set("view engine", "handlebars")
 
 connectDB()
 
+app.use(session({
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URL,
+        ttl: 100
+    }),
+    secret: "53cr37k3Y",
+    resave: false,
+    saveUninitialized: false
+}))
+
 app.use('/api/products', productsRouter)
 app.use('/api/carts', cartsRouter)
+app.use('/api/sessions', sessionsRouter)
 app.use('/', viewsRouter)
 
 socketProducts(socketServer)
